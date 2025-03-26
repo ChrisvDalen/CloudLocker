@@ -6,60 +6,112 @@ import java.net.*;
 public class CloudLockerClient {
     private static final String SERVER_ADDRESS = "localhost";
     private static final int PORT = 12345;
+    private static final int MAX_RETRIES = 3;
+    private static final int TIMEOUT_MS = 5000; // 5 seconds timeout
 
     public static void uploadFile(String filePath, String fileName) throws IOException {
         File file = new File(filePath, fileName);
 
-        try (Socket socket = new Socket(SERVER_ADDRESS, PORT);
-             DataInputStream dis = new DataInputStream(socket.getInputStream());
-             DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
-             FileInputStream fis = new FileInputStream(file)) {
+        int attempt = 0;
+        boolean success = false;
 
-            dos.writeUTF("UPLOAD");
-            dos.writeUTF(fileName);
-            dos.writeLong(file.length());
+        while (attempt < MAX_RETRIES && !success) {
+            try (Socket socket = new Socket()) {
+                socket.connect(new InetSocketAddress(SERVER_ADDRESS, PORT), TIMEOUT_MS);
+                socket.setSoTimeout(TIMEOUT_MS);
 
-            byte[] buffer = new byte[4096];
-            int count;
-            while ((count = fis.read(buffer)) > 0) {
-                dos.write(buffer, 0, count);
+                DataInputStream dis = new DataInputStream(socket.getInputStream());
+                DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
+
+                dos.writeUTF("UPLOAD");
+                dos.writeUTF(fileName);
+                dos.writeLong(file.length());
+
+                try (FileInputStream fis = new FileInputStream(file)) {
+                    byte[] buffer = new byte[4096];
+                    int count;
+                    while ((count = fis.read(buffer)) > 0) {
+                        dos.write(buffer, 0, count);
+                    }
+                }
+
+                String response = dis.readUTF();
+                if ("UPLOAD_SUCCESS".equals(response)) {
+                    System.out.println("Upload success: " + fileName);
+                    success = true;
+                }
+
+            } catch (IOException e) {
+                attempt++;
+                System.err.println("Upload attempt " + attempt + " failed: " + e.getMessage());
+                if (attempt < MAX_RETRIES) {
+                    System.out.println("Retrying upload...");
+                    try {
+                        Thread.sleep(2000); // Wait 2 seconds before retrying
+                    } catch (InterruptedException ie) {
+                        Thread.currentThread().interrupt();
+                    }
+                } else {
+                    throw new IOException("Upload failed after " + MAX_RETRIES + " attempts.");
+                }
             }
-
-            String response = dis.readUTF();
-            System.out.println("Upload Response: " + response);
         }
     }
 
     public static void downloadFile(String fileName, String targetPath) throws IOException {
-        try (Socket socket = new Socket(SERVER_ADDRESS, PORT);
-             DataInputStream dis = new DataInputStream(socket.getInputStream());
-             DataOutputStream dos = new DataOutputStream(socket.getOutputStream())) {
+        int attempt = 0;
+        boolean success = false;
 
-            dos.writeUTF("DOWNLOAD");
-            dos.writeUTF(fileName);
+        while (attempt < MAX_RETRIES && !success) {
+            try (Socket socket = new Socket()) {
+                socket.connect(new InetSocketAddress(SERVER_ADDRESS, PORT), TIMEOUT_MS);
+                socket.setSoTimeout(TIMEOUT_MS);
 
-            String status = dis.readUTF();
-            if ("FILE_FOUND".equals(status)) {
-                long filesize = dis.readLong();
+                DataInputStream dis = new DataInputStream(socket.getInputStream());
+                DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
 
-                File outputFile = new File(targetPath, fileName);
-                outputFile.getParentFile().mkdirs();
+                dos.writeUTF("DOWNLOAD");
+                dos.writeUTF(fileName);
 
-                try (FileOutputStream fos = new FileOutputStream(outputFile)) {
-                    byte[] buffer = new byte[4096];
-                    long totalRead = 0;
-                    int read;
+                String status = dis.readUTF();
+                if ("FILE_FOUND".equals(status)) {
+                    long filesize = dis.readLong();
 
-                    while (totalRead < filesize) {
-                        read = dis.read(buffer, 0, (int) Math.min(buffer.length, filesize - totalRead));
-                        fos.write(buffer, 0, read);
-                        totalRead += read;
+                    File outputFile = new File(targetPath, fileName);
+                    outputFile.getParentFile().mkdirs();
+
+                    try (FileOutputStream fos = new FileOutputStream(outputFile)) {
+                        byte[] buffer = new byte[4096];
+                        long totalRead = 0;
+                        int read;
+
+                        while (totalRead < filesize) {
+                            read = dis.read(buffer, 0, (int) Math.min(buffer.length, filesize - totalRead));
+                            fos.write(buffer, 0, read);
+                            totalRead += read;
+                        }
+
+                        System.out.println("Downloaded file: " + fileName);
+                        success = true;
                     }
-
-                    System.out.println("Downloaded file: " + fileName);
+                } else {
+                    System.out.println("Server response: File not found - " + fileName);
+                    success = true; // Exit loop as retry won't fix missing file
                 }
-            } else {
-                System.out.println("Server response: File not found - " + fileName);
+
+            } catch (IOException e) {
+                attempt++;
+                System.err.println("Download attempt " + attempt + " failed: " + e.getMessage());
+                if (attempt < MAX_RETRIES) {
+                    System.out.println("Retrying download...");
+                    try {
+                        Thread.sleep(2000); // Wait 2 seconds before retrying
+                    } catch (InterruptedException ie) {
+                        Thread.currentThread().interrupt();
+                    }
+                } else {
+                    throw new IOException("Download failed after " + MAX_RETRIES + " attempts.");
+                }
             }
         }
     }
