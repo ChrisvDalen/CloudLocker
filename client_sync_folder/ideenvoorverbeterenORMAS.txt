@@ -1,0 +1,19 @@
+waarom niet sonar op req zetten zodat code smells en/of bugs opgelost worden voordat we naar main pushen? 
+Hierdoor lopen we veel werk achteraf te doen. ( Nick vragen hoe ze het bij hun precies laten werken)
+
+ai mr agent is een mooie toevoeging en hiermee kunnen we de review cyclus flink verkorten en eventuele "kleine" foutjes er alvast uitvissen.
+
+filters voor teamleden aanpassen, Bjorn en Ewoud kan er eventueel uit gehaald worden, Simon, Eric Jan en ik toegevoegd worden.
+
+Setting up the GitLab integration at the global level
+This section explains how to set up the integration of SonarQube Server with GitLab. You need the global Administer System permission in SonarQube to perform this setup.
+Importing your GitLab repositories into SonarQube Server
+Once the integration of SonarQube Server with GitLab has been properly set up, you can import a GitLab repository or monorepo to create the corresponding projects in SonarQube Server.  
+Setting up GitLab integration features at the project level
+This page explains how to set up merge request decoration and the blocking of merge requests in case of quality gate failure. You need the Administer permission on the project to perform this setup.
+Adding the SonarQube Server analysis to your GitLab CI/CD pipeline
+Once you have created your project(s) in SonarQube Server, you can add the SonarQube Server analysis to your GitLab CI/CD pipeline, in a standard case and in the case of a monorepo. Note that the report of security vulnerabilities in GitLab is set up through the pipeline.
+
+GitLab sonarqube runnen op de merge request branch, 
+of misschien zelfs elke branch? Lopen nu elke keer te mergen 
+\en dan pas te kijken naar sonar aangezien dat pas het eerste moment is.

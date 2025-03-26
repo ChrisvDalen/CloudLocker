@@ -1,0 +1,4 @@
+23/01:
+- review Hugo M, Erwin
+- Gebeld met Hugo G, Sandor, Erwin.
+- ORMAS-12635 goede vordering op BE.

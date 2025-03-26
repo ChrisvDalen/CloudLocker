@@ -1,0 +1,5 @@
+10612 gesloten
+Review van  13089 gehad.
+Jira items die niet meer relevant waren gesloten. 
+13802 van Algemene taken
+13795 documentatie maken, alleen dbdd, srs(afhankelijk van of me dat morgen ochtend nog lukt) en svd nog.
