@@ -33,6 +33,8 @@ public class CloudLockerServer {
         }
     }
 
+    private static final int CHUNK_SIZE = 10 * 1024 * 1024; // 10MB chunks
+
     private static void handleClient(Socket clientSocket) {
         try (DataInputStream dis = new DataInputStream(clientSocket.getInputStream());
              DataOutputStream dos = new DataOutputStream(clientSocket.getOutputStream())) {
@@ -45,18 +47,26 @@ public class CloudLockerServer {
 
                 try (FileOutputStream fos = new FileOutputStream(STORAGE_DIR + "/" + filename)) {
                     byte[] buffer = new byte[4096];
-                    long totalRead = 0;
+                    long remaining = filesize;
                     int read;
 
-                    while (totalRead < filesize) {
-                        read = dis.read(buffer, 0, (int) Math.min(buffer.length, filesize - totalRead));
-                        fos.write(buffer, 0, read);
-                        totalRead += read;
-                    }
+                    while (remaining > 0) {
+                        int chunkSize = (int)Math.min(CHUNK_SIZE, remaining);
+                        int chunkRead = 0;
 
-                    System.out.println("File uploaded: " + filename);
-                    dos.writeUTF("UPLOAD_SUCCESS");
+                        while (chunkRead < chunkSize) {
+                            read = dis.read(buffer, 0, Math.min(buffer.length, chunkSize - chunkRead));
+                            if (read == -1) break;
+                            fos.write(buffer, 0, read);
+                            chunkRead += read;
+                        }
+                        remaining -= chunkRead;
+                        dos.writeUTF("CHUNK_RECEIVED");
+                    }
                 }
+
+                dos.writeUTF("UPLOAD_SUCCESS");
+                System.out.println("File uploaded: " + filename);
 
             } else if ("DOWNLOAD".equalsIgnoreCase(command)) {
                 String filename = dis.readUTF();
@@ -68,12 +78,23 @@ public class CloudLockerServer {
 
                     try (FileInputStream fis = new FileInputStream(file)) {
                         byte[] buffer = new byte[4096];
-                        int count;
+                        long remaining = file.length();
+                        int read;
 
-                        while ((count = fis.read(buffer)) > 0) {
-                            dos.write(buffer, 0, count);
+                        while (remaining > 0) {
+                            int chunkSize = (int)Math.min(CHUNK_SIZE, remaining);
+                            int chunkSent = 0;
+
+                            while (chunkSent < chunkSize && (read = fis.read(buffer, 0, Math.min(buffer.length, chunkSize - chunkSent))) > 0) {
+                                dos.write(buffer, 0, read);
+                                chunkSent += read;
+                            }
+                            dos.flush();
+                            dis.readUTF(); // Wait for client acknowledgment
+                            remaining -= chunkSent;
                         }
                     }
+                    System.out.println("File downloaded: " + filename);
                 } else {
                     dos.writeUTF("FILE_NOT_FOUND");
                 }
@@ -86,4 +107,5 @@ public class CloudLockerServer {
             System.err.println("Client handler error: " + e.getMessage());
         }
     }
+
 }
