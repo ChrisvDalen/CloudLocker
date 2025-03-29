@@ -14,4 +14,46 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
+  <dependencies>
+    <!-- Jakarta RESTful Web Services -->
+    <dependency>
+      <groupId>jakarta.ws.rs</groupId>
+      <artifactId>jakarta.ws.rs-api</artifactId>
+      <version>3.1.0</version>
+    </dependency>
+
+    <!-- Jersey implementation of Jakarta REST -->
+    <dependency>
+      <groupId>org.glassfish.jersey.containers</groupId>
+      <artifactId>jersey-container-servlet</artifactId>
+      <version>3.1.3</version>
+    </dependency>
+
+    <!-- JSON support -->
+    <dependency>
+      <groupId>org.glassfish.jersey.media</groupId>
+      <artifactId>jersey-media-json-jackson</artifactId>
+      <version>3.1.3</version>
+    </dependency>
+  </dependencies>
+
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-maven-plugin</artifactId>
+        <version>11.0.20</version>
+        <configuration>
+          <contextPath>/api</contextPath>
+          <webAppConfig>
+            <contextPath>/api</contextPath>
+          </webAppConfig>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+
+
 </project>
