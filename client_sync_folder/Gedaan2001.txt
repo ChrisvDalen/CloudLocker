@@ -1,0 +1,4 @@
+- Refinements
+- Met Erwin gezeten
+- Systeemtesten aangepast mbt ovops en oops.
+- Bespreken FE weeknr testen vandaag(21.01)

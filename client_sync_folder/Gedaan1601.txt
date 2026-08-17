@@ -1,0 +1,5 @@
+websocket branch review voor Erwin
+ORMAS-13795 dbdd en srs gemaakt.
+ORMAS-13796 gedaan
+ORMAS-13817 gereviewd
+https://gitlab.codecorner.nl/prorail-ormas/ormas/-/merge_requests/2146 gereviewd

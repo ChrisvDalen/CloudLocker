@@ -1,0 +1,19 @@
+- 13841 syteemtest afgemaakt.
+- ORMAS-13834 tonen aan PO
+- gebelt met Erwin, Hugo, Pascale
+- ORMAS-13830 is klaar en in dev
+- Backlog bestudeerd. ( deze gevonden : ORMAS-10892)
+
+- evt oppakken van : ORMAS-11787?
+
+Kan deze weg? ORMAS-10304 staat sinds 29 aug 2023 open.
+Deze wegwerken en/of sluiten? ORMAS-9814
+ORMAS-7092 nog van toepassing??
+ORMAS-3437, is van 2020..??
+ORMAS-3691 open sinds 29 aug 2023, is er hier al iets van gehoord en 
+ORMAS-114 beetje ruw, optie 1 kan sowieso niet denk ik.. Misschien iets voor de lange termijn?
+ORMAS-70?
+ORMAS-69? Hangt af van wat iedereen gebruikt, ik doe het via een script dus ik weet niet wat de toegevoegde waarde is..
+ORMAS-232? Bestaat niet volgens mij, is dit nog waardevol of wachten tot over zijn op spring boot?
+ORMAS-5340
+https://codecorner.nl/jira/browse/ORMAS-10301 oppaken en evt resolven wanneer iemand anders naar mijn evt oplossingen heeft gekeken.
