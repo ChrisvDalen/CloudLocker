@@ -40,7 +40,7 @@ public class SyncManager {
                     CloudLockerClient.downloadFile(file, CLIENT_DIR);
                 }
             }
-        } catch (IOException e) {
+        } catch (IOException | InterruptedException e) {
             System.err.println("Sync error in " + Thread.currentThread().getName() + ": " + e.getMessage());
         }
     }
